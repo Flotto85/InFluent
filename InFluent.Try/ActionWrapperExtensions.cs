@@ -15,9 +15,9 @@ public static class ActionWrapperExtensions
         {
             wrapper.Action?.Invoke();
         }
-        catch(Exception e) when (e.GetType() == wrapper.ExceptionType)
+        catch(Exception e) when (wrapper.HasExceptionType(e.GetType()))
         {
-            wrapper.ExecuteHandler(e);
+            wrapper.ExecuteHandler(e.GetType(), e);
         }
         finally
         {

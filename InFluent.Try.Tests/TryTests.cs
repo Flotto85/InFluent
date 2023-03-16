@@ -81,4 +81,22 @@ public class TryTests
         void action() { }
         void handler() { handled = true; }
     }
+
+    [Fact]
+    public void CatchesAndHandlesExceptionWithMultipleExceptionHandlersDefined()
+    {
+        Type? gotType = null;
+        Type expectedType = typeof(OverflowException);
+
+        Try(action)
+            .Catch<ArgumentNullException>(handler)
+            .Catch<OverflowException>(handler)
+            .Catch<Exception>(handler)
+            .Finally();
+
+        void action() { throw new OverflowException(); }
+        void handler(Exception e) { gotType = e.GetType(); }
+
+        gotType.Should().Be(expectedType);
+    }
 }
