@@ -2,10 +2,12 @@
 
 public static class ActionWrapperExtensions
 {
-    public static ActionWrapper Catch<TException>(this ActionWrapper wrapper, Action<TException> handler)
+    public static ActionWrapper Catch<TException>(
+        this ActionWrapper wrapper,
+        Action<TException> handler)
         where TException : Exception
     {
-        wrapper.AddExceptionHandler<TException>(handler);
+        wrapper.AddExceptionHandler(handler);
         return wrapper;
     }
 

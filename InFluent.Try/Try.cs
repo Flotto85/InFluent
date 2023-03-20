@@ -8,4 +8,9 @@ public static partial class Tools
     {
         return new ActionWrapper(action);
     }
+
+    public static FunctionWrapper<T> Try<T>(Func<T> func)
+    {
+        return new FunctionWrapper<T>(func);
+    } 
 }

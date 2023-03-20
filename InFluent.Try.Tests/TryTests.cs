@@ -1,6 +1,6 @@
 namespace InFluent.Try.Tests;
 
-using System.Reflection.Metadata;
+using System;
 using static InFluent.Tools;
 
 public class TryTests
@@ -85,18 +85,57 @@ public class TryTests
     [Fact]
     public void CatchesAndHandlesExceptionWithMultipleExceptionHandlersDefined()
     {
+        TestMultipleExceptionHandlers<
+            ArgumentException,
+            OverflowException,
+            Exception,
+            OverflowException>();
+        TestMultipleExceptionHandlers<
+            ArgumentException,
+            Exception,
+            OverflowException,
+            ArgumentException>();
+        TestMultipleExceptionHandlers<
+            ArgumentException,
+            Exception,
+            OverflowException,
+            ArgumentException>();
+    }
+
+    [Fact]
+    public void FinallyReturnsFunctionsReturnValue()
+    {
+        int a = 1;
+        int b = 2;
+        int expected = func(a, b);
+
+        int got = Try(() => func(a, b))
+            .Finally();
+        got.Should().Be(expected);
+        
+        int func(int a, int b) => a + b;
+    }
+
+    private void TestMultipleExceptionHandlers<T1, T2, T3, TExpected>()
+        where TExpected : Exception, new()
+        where T1 : Exception
+        where T2 : Exception
+        where T3 : Exception
+    {
         Type? gotType = null;
-        Type expectedType = typeof(OverflowException);
+        Type expectedType = typeof(TExpected);
 
         Try(action)
-            .Catch<ArgumentNullException>(handler)
-            .Catch<OverflowException>(handler)
-            .Catch<Exception>(handler)
+            .Catch<T1>(handler1)
+            .Catch<T2>(handler2)
+            .Catch<T3>(handler3)
             .Finally();
 
-        void action() { throw new OverflowException(); }
-        void handler(Exception e) { gotType = e.GetType(); }
-
         gotType.Should().Be(expectedType);
+
+        void action() { throw new TExpected(); }
+        void handler1(Exception e) { gotType = typeof(T1); }
+        void handler2(Exception e) { gotType = typeof(T2); }
+        void handler3(Exception e) { gotType = typeof(T3); }
     }
 }
